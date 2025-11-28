@@ -1,31 +1,41 @@
-console.log("ABTEST SCRIPT LOADED ✓");
+console.log("ABTEST SCRIPT LOADED 🚀");
 
-// RUN AFTER SHOPIFY IS FULLY LOADED
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("ABTEST: DOM fully loaded.");
+// Run after full load AND after Shopify's lazy-loading / ajax
+function runABTest() {
+  console.log("ABTEST: Checking for images...");
 
   // Only run on product pages
   if (!window.location.href.includes("/products/")) {
-    console.log("ABTEST: Not a product page. Stopping.");
+    console.log("ABTEST: Not a product page.");
     return;
   }
 
-  console.log("ABTEST: Swapping product images...");
-
-  // TEST IMAGE (replace this later with real variants)
+  // Test image
   const newImg =
-    "https://via.placeholder.com/800x800.png?text=AB+TEST";
+    "https://via.placeholder.com/800x800.png?text=AB+TEST+IMAGE";
 
-  // Select all images inside the page
-  const imgs = document.querySelectorAll("img");
+  // Select all product images (Shopify + Kalles lazyload version)
+  const imgs = document.querySelectorAll(
+    "img, .lazyload, .nt_bg_lz, .product-image img"
+  );
 
   imgs.forEach((img) => {
-    // avoid icons or thumbnails (only replace bigger ones)
-    if (img.width > 150) {
+    let w = img.width || img.clientWidth;
+
+    if (w > 150) {
       img.src = newImg;
-      img.style.border = "3px solid red"; // visual proof
+      img.style.border = "3px solid red";
     }
   });
 
-  console.log("ABTEST: Swap complete.");
+  console.log("ABTEST: swap done.");
+}
+
+// Run multiple times because images load late
+document.addEventListener("DOMContentLoaded", () => {
+  runABTest();
 });
+window.addEventListener("load", () => {
+  setTimeout(runABTest, 1500);
+});
+setInterval(runABTest, 2000); // keep checking
