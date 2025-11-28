@@ -1,49 +1,61 @@
-console.log("UNIVERSAL ABTEST LOADED 🚀");
+console.log("ABTEST LOADED 🎯");
 
-const NEW_IMG = "https://picsum.photos/id/237/800/800";   // your test image
+// Your test image
+const NEW_IMG = "https://picsum.photos/id/237/800/800";
 
-function replaceImg(el) {
-    // 1. Normal <img src="">
-    if (el.tagName === "IMG") {
-        el.src = NEW_IMG;
-        el.srcset = "";
-        el.style.border = "3px solid red";
-    }
+// Product containers (works for Shopify, WooCommerce, Webflow, Magento)
+const PRODUCT_SELECTORS = `
+  .product, 
+  .product-single,
+  .product__photo,
+  .product__images,
+  .product-gallery,
+  .product-media,
+  #ProductSection-product-template,
+  .productView,
+  .woocommerce-product-gallery,
+  .woocommerce-product-gallery__image,
+  .single-product,
+  .product-main,
+  .product-page
+`;
 
-    // 2. Lazyload attributes
-    const lazyAttrs = ["data-src", "data-original", "data-lazy", "data-srcset"];
-    lazyAttrs.forEach(attr => {
-        if (el.getAttribute && el.getAttribute(attr)) {
-            el.setAttribute(attr, NEW_IMG);
+// Return TRUE only if element is inside a product area
+function isInsideProduct(el) {
+    return el.closest(PRODUCT_SELECTORS) !== null;
+}
+
+function replaceProductImages() {
+    console.log("ABTEST: scanning...");
+
+    const candidates = document.querySelectorAll("img, picture, [style*='background-image']");
+
+    candidates.forEach(el => {
+        if (!isInsideProduct(el)) return;            // ❌ skip non-product images
+        
+        const w = el.clientWidth || 0;
+        if (w < 200) return;                        // avoid small icons
+
+        // <img>
+        if (el.tagName === "IMG") {
+            el.src = NEW_IMG;
+            el.srcset = "";
+            el.style.border = "3px solid red";
+        }
+
+        // picture sources
+        if (el.tagName === "PICTURE") {
+            el.querySelectorAll("source").forEach(src => src.srcset = NEW_IMG);
+        }
+
+        // background-image
+        if (window.getComputedStyle(el).backgroundImage.includes("url(")) {
+            el.style.backgroundImage = `url(${NEW_IMG})`;
         }
     });
-
-    // 3. Background images
-    const bg = window.getComputedStyle(el).backgroundImage;
-    if (bg && bg.includes("url(")) {
-        el.style.backgroundImage = `url(${NEW_IMG})`;
-    }
-
-    // 4. <picture> elements
-    if (el.tagName === "PICTURE") {
-        const sources = el.querySelectorAll("source");
-        sources.forEach(src => src.srcset = NEW_IMG);
-    }
 }
 
-function scanAndReplace() {
-    const all = document.querySelectorAll("*");
-
-    all.forEach(el => {
-        // Only swap visible large images
-        const w = el.clientWidth || 0;
-        if (w > 150) replaceImg(el);
-    });
-
-    console.log("Universal ABTEST Swap Done ✔");
-}
-
-// Run multiple times due to lazy loading
-document.addEventListener("DOMContentLoaded", scanAndReplace);
-window.addEventListener("load", () => setTimeout(scanAndReplace, 800));
-setInterval(scanAndReplace, 1500);
+// Run multiple times because of lazyload / sliders
+setInterval(replaceProductImages, 1200);
+document.addEventListener("DOMContentLoaded", replaceProductImages);
+window.addEventListener("load", () => setTimeout(replaceProductImages, 900));
