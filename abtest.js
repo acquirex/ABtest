@@ -4,16 +4,14 @@ console.log("ABTEST SCRIPT LOADED 🚀");
 function runABTest() {
   console.log("ABTEST: Checking for images...");
 
-  // Only run on product pages
   if (!window.location.href.includes("/products/")) {
     console.log("ABTEST: Not a product page.");
     return;
   }
 
-  // Test image (working placeholder)
-  const newImg = "https://picsum.photos/id/237/800/800";
+  // BIG RED TEST IMAGE
+  const newImg = "https://dummyimage.com/600x600/ff0000/ffffff.png&text=ABTEST";
 
-  // Select all product images (Shopify + Kalles lazyload)
   const imgs = document.querySelectorAll(
     "img, .lazyload, .nt_bg_lz, .product-image img"
   );
@@ -23,14 +21,13 @@ function runABTest() {
 
     if (w > 150) {
       img.src = newImg;
-      img.style.border = "3px solid red";
+      img.style.border = "4px solid yellow";
     }
   });
 
   console.log("ABTEST: swap done.");
 }
 
-// Run multiple times because Shopify loads images late
 document.addEventListener("DOMContentLoaded", runABTest);
 window.addEventListener("load", () => setTimeout(runABTest, 1500));
 setInterval(runABTest, 2000);
