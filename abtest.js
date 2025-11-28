@@ -1,6 +1,6 @@
 console.log("ABTEST SCRIPT LOADED 🚀");
 
-// Run after full load AND after Shopify's lazy-loading / ajax
+// Run after full load AND after Shopify's lazy-loading
 function runABTest() {
   console.log("ABTEST: Checking for images...");
 
@@ -10,10 +10,10 @@ function runABTest() {
     return;
   }
 
-  // Test image
-  const newImg =
-    const newImg = https://picsum.photos/id/237/200/300
-  // Select all product images (Shopify + Kalles lazyload version)
+  // Test image (working placeholder)
+  const newImg = "https://picsum.photos/id/237/800/800";
+
+  // Select all product images (Shopify + Kalles lazyload)
   const imgs = document.querySelectorAll(
     "img, .lazyload, .nt_bg_lz, .product-image img"
   );
@@ -30,13 +30,7 @@ function runABTest() {
   console.log("ABTEST: swap done.");
 }
 
-// Run multiple times because images load late
-document.addEventListener("DOMContentLoaded", () => {
-  runABTest();
-});
-window.addEventListener("load", () => {
-  setTimeout(runABTest, 1500);
-});
-setInterval(runABTest, 2000); // keep checking
-
-
+// Run multiple times because Shopify loads images late
+document.addEventListener("DOMContentLoaded", runABTest);
+window.addEventListener("load", () => setTimeout(runABTest, 1500));
+setInterval(runABTest, 2000);
