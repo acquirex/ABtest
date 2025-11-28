@@ -12,8 +12,7 @@ function runABTest() {
 
   // Test image
   const newImg =
-    const newImg = "https://picsum.photos/800/800";
-
+    const newImg = https://picsum.photos/id/237/200/300
   // Select all product images (Shopify + Kalles lazyload version)
   const imgs = document.querySelectorAll(
     "img, .lazyload, .nt_bg_lz, .product-image img"
@@ -39,4 +38,5 @@ window.addEventListener("load", () => {
   setTimeout(runABTest, 1500);
 });
 setInterval(runABTest, 2000); // keep checking
+
 
