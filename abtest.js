@@ -1,44 +1,49 @@
-console.log("ABTEST LOADED 🚀");
+console.log("UNIVERSAL ABTEST LOADED 🚀");
 
-// Your test image
-const AB_IMAGE = "https://picsum.photos/id/237/800/800";
+const NEW_IMG = "https://picsum.photos/id/237/800/800";   // your test image
 
-// Universal replacer
-function replaceImages() {
-  console.log("ABTEST: Running...");
-
-  // Actual images
-  document.querySelectorAll("img").forEach(img => {
-    if (img.width > 150 || img.height > 150) {
-      img.src = AB_IMAGE;
-      img.srcset = AB_IMAGE;
-      img.style.border = "3px solid red";
+function replaceImg(el) {
+    // 1. Normal <img src="">
+    if (el.tagName === "IMG") {
+        el.src = NEW_IMG;
+        el.srcset = "";
+        el.style.border = "3px solid red";
     }
-  });
 
-  // Lazyload: data-src, data-bgset
-  document.querySelectorAll("[data-src]").forEach(el => {
-    el.setAttribute("data-src", AB_IMAGE);
-    el.src = AB_IMAGE;
-  });
+    // 2. Lazyload attributes
+    const lazyAttrs = ["data-src", "data-original", "data-lazy", "data-srcset"];
+    lazyAttrs.forEach(attr => {
+        if (el.getAttribute && el.getAttribute(attr)) {
+            el.setAttribute(attr, NEW_IMG);
+        }
+    });
 
-  document.querySelectorAll("[data-bgset]").forEach(el => {
-    el.setAttribute("data-bgset", AB_IMAGE);
-    el.style.backgroundImage = `url(${AB_IMAGE})`;
-  });
+    // 3. Background images
+    const bg = window.getComputedStyle(el).backgroundImage;
+    if (bg && bg.includes("url(")) {
+        el.style.backgroundImage = `url(${NEW_IMG})`;
+    }
 
-  // <picture> sources
-  document.querySelectorAll("source").forEach(src => {
-    src.srcset = AB_IMAGE;
-  });
-
-  // background-image
-  document.querySelectorAll("[style*='background-image']").forEach(bg => {
-    bg.style.backgroundImage = `url(${AB_IMAGE})`;
-  });
-
-  console.log("ABTEST: Swap Complete ✓");
+    // 4. <picture> elements
+    if (el.tagName === "PICTURE") {
+        const sources = el.querySelectorAll("source");
+        sources.forEach(src => src.srcset = NEW_IMG);
+    }
 }
 
-// Run repeatedly because Shopify renders late
-setInterval(replaceImages, 1500);
+function scanAndReplace() {
+    const all = document.querySelectorAll("*");
+
+    all.forEach(el => {
+        // Only swap visible large images
+        const w = el.clientWidth || 0;
+        if (w > 150) replaceImg(el);
+    });
+
+    console.log("Universal ABTEST Swap Done ✔");
+}
+
+// Run multiple times due to lazy loading
+document.addEventListener("DOMContentLoaded", scanAndReplace);
+window.addEventListener("load", () => setTimeout(scanAndReplace, 800));
+setInterval(scanAndReplace, 1500);
